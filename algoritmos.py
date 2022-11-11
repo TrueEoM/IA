@@ -1,11 +1,5 @@
 from queue import Queue
 
-# Biblioteca de tratamento de grafos necessária para desenhar graficamente o grafo
-import networkx as nx
-
-# Biblioteca de tratamento de grafos necessária para desenhar graficamente o grafo
-import matplotlib.pyplot as plt
-
 #biblioteca necessária para se poder utilizar o valor math.inf  (infinito)
 import math
 
@@ -211,9 +205,9 @@ def minimax(estado, profundidade, jogador):
     # se calhar mais adequado para modo de dois jogadores
 
     if jogador == BOT:
-        best = [-1, -1 , -infinito]
+        best = [-1, -1 , -math.inf]
     else:
-        best = [-1 , -1, +infinito]
+        best = [-1 , -1, +math.inf]
 
     if profundidade == 0 or (verifica_vitoria(estado, HUMANO)) or verifica_vitoria(estado, BOT):
         score = avaliar(estado)
