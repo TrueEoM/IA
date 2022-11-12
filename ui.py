@@ -7,8 +7,6 @@ def ui_jogo():
 
     # deve ser chamada na função main()
 
-    #
-
     #construção da UI
     saida = -1
     while saida != 0:
