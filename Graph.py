@@ -3,18 +3,15 @@ from Pos import Pos
 
 class Graph:
     def __init__(self):
-        self.m_mapSize = 0
         self.m_pos = []
         self.m_graph = {}
         self.m_h = {}
 
     def __str__(self):
         out = ""
-        for line in self.m_pos:
-            for pos in line:
-                out = out + str(pos) + " "
-            out = out + "\n"
-        return out
+        for key in self.m_graph.keys():
+            out = out + str(key) + ": " + str(self.m_graph[key]) + "\n"
+            return out
 
     def parse(self, filename):
         try:
@@ -42,17 +39,34 @@ class Graph:
                 return pos
         return None
 
-    def neighbors(self, row_number, column_number, radius=1):
-        return [[self.m_pos[i][j] if i >= 0 and i < len(self.m_pos) and j >= 0 and j < len(self.m_pos[0]) else 0
-                 for j in range(column_number - 1 - radius, column_number + radius)]
-                for i in range(row_number - 1 - radius, row_number + radius)]
+    def neighbors(self, rowNumber, colNumber):
+        result = []
+        for rowAdd in range(-1, 2):
+            newRow = rowNumber + rowAdd
+            if newRow >= 0 and newRow <= len(self.m_pos[0]) - 1:
+                for colAdd in range(-1, 2):
+                    newCol = colNumber + colAdd
+                    if newCol >= 0 and newCol <= len(self.m_pos) - 1:
+                        if newCol == colNumber and newRow == rowNumber:
+                            continue
+                        result.append(self.m_pos[newCol][newRow])
+        return result
+
 
     def make_graph(self):
-        for pos in self.m_pos:
-            self.m_graph[pos] = list()
-            coord = pos.get_xy()
-            for neighbors in self.neighbors(1, coord[0], coord[1]):
-                self.m_graph[pos].append(neighbors)
+        for posLine in self.m_pos:
+            for pos in posLine:
+                coord = pos.get_xy()
+                for neighbors in self.neighbors(coord[0], coord[1]):
+                    if pos in self.m_graph:
+                        self.m_graph[pos].append(neighbors)
+                    else:
+                        self.m_graph[pos] = list()
+                        self.m_graph[pos] = [neighbors]
 
     def print_graph(self):
-        print(self.m_graph)
+        for key in self.m_graph.keys():
+            out = ""
+            for neighbour in self.m_graph.get(key):
+                out = out + str(neighbour) + " "
+            print("[ " + str(key) + ": " + out + "]")
