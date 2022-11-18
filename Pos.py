@@ -1,5 +1,5 @@
 class Pos:
-    def __init__(self, x, y, type):
+    def __init__(self, x, y, type=""):
         self.m_name = "(" + str(x) + "," + str(y) + ")"
         self.m_x    = x
         self.m_y    = y
@@ -17,7 +17,7 @@ class Pos:
 
     def __eq__(self, other):
         coordOther = other.get_xy
-        return self.m_x == coordOther[0] & self.m_y == coordOther[1]
+        return self.m_x == coordOther[0] and self.m_y == coordOther[1]
 
     def __hash__(self):
         return hash(self.m_name)

@@ -1,8 +1,11 @@
 from Pos import Pos
+import networkx as nx
+import matplotlib.pyplot as plt
 
 
 class Graph:
     def __init__(self):
+        self.m_map = []
         self.m_pos = []
         self.m_graph = {}
         self.m_h = {}
@@ -25,9 +28,10 @@ class Graph:
                 posLine = []
                 for c in line:
                     if c == "X" or c == "-" or c == "F" or c == "P":
+                        self.m_pos.append(Pos(x, y, c))
                         posLine.append(Pos(x, y, c))
                         x += 1
-                self.m_pos.append(posLine)
+                self.m_map.append(posLine)
                 x = 0
                 y += 1
         finally:
@@ -43,18 +47,18 @@ class Graph:
         result = []
         for rowAdd in range(-1, 2):
             newRow = rowNumber + rowAdd
-            if newRow >= 0 and newRow <= len(self.m_pos[0]) - 1:
+            if newRow >= 0 and newRow <= len(self.m_map[0]) - 1:
                 for colAdd in range(-1, 2):
                     newCol = colNumber + colAdd
-                    if newCol >= 0 and newCol <= len(self.m_pos) - 1:
+                    if newCol >= 0 and newCol <= len(self.m_map) - 1:
                         if newCol == colNumber and newRow == rowNumber:
                             continue
-                        result.append(self.m_pos[newCol][newRow])
+                        result.append(self.m_map[newCol][newRow])
         return result
 
 
     def make_graph(self):
-        for posLine in self.m_pos:
+        for posLine in self.m_map:
             for pos in posLine:
                 coord = pos.get_xy()
                 for neighbors in self.neighbors(coord[0], coord[1]):
@@ -69,4 +73,28 @@ class Graph:
             out = ""
             for neighbour in self.m_graph.get(key):
                 out = out + str(neighbour) + " "
-            print("[ " + str(key) + ": " + out + "]")
+            print("[ Pos " + str(key) + ": " + out + "]")
+
+    def desenha(self):
+        ##criar lista de vertices
+        lista_v = self.m_pos
+        lista_a = []
+        g = nx.Graph()
+
+        # Converter para o formato usado pela biblioteca networkx
+        for pos in lista_v:
+            n = str(pos)
+            g.add_node(n)
+            for adjacente in self.m_graph[pos]:
+                lista = (n, str(adjacente))
+                # lista_a.append(lista)
+                g.add_edge(n, str(adjacente))
+
+        # desenhar o grafo
+        pos = nx.spring_layout(g)
+        nx.draw_networkx(g, pos, with_labels=True, font_weight='bold')
+        labels = nx.get_edge_attributes(g, 'weight')
+        nx.draw_networkx_edge_labels(g, pos, edge_labels=labels)
+
+        plt.draw()
+        plt.show()

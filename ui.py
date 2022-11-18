@@ -14,7 +14,7 @@ def ui_jogo():
         print("------------------ VectorRace v.1 ------------------")
         print(" ")
         print("1-Imprimir circuito")
-        #print("2-Desenhar circuito")
+        print("2-Desenhar circuito")
         #print("3-Imprimir  nodos de circuito")
         #print("4-Imprimir arestas de circuito")
         print("2-Corrida com DFS")
@@ -36,11 +36,18 @@ def ui_jogo():
             filename = input("insira ficheiro com circuito ---> ")
             g.parse(filename)
             g.make_graph()
-            print(g)
+            print(g.print_graph())
             l=input("prima enter para continuar")
 
-
         elif saida == 2:
+            g = Graph()
+            filename = input("insira ficheiro com circuito ---> ")
+            g.parse(filename)
+            g.make_graph()
+            g.desenha()
+            l = input("prima enter para continuar")
+
+        elif saida == 3:
             #Efetuar corrida com DFS
 
             g = Graph()
@@ -51,7 +58,7 @@ def ui_jogo():
             print(g.procura_DFS( inicio, fim, path=[], visited=set()))    # ---> precisa de ser adaptado
             l = input("prima enter para continuar")
 
-        elif saida == 3:
+        elif saida == 4:
             # Efetuar corrida com BFS
 
             g = Graph()
@@ -62,7 +69,7 @@ def ui_jogo():
             print(g.procura_BFS(inicio, fim))  # ---> precisa de ser adaptado
             l = input("prima enter para continuar")
 
-        elif saida == 4:
+        elif saida == 5:
             # Efetuar corrida com Gulosa
 
             g = Graph()
@@ -73,7 +80,7 @@ def ui_jogo():
             print(g.greedy(inicio, fim))  # ---> precisa de ser adaptado
             l = input("prima enter para continuar")
 
-        elif saida == 5:
+        elif saida == 6:
             # Efetuar corrida com A*
 
             g = Graph()
@@ -84,7 +91,7 @@ def ui_jogo():
             print(g.pesquisa_estrela(inicio,fim))    # ---> precisa de ser adaptado
             l = input("prima enter para continuar")
 
-        elif saida == 6:
+        elif saida == 7:
             # Efetuar corrida com Minimax
 
             g = Graph()
