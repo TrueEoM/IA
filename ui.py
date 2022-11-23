@@ -1,4 +1,5 @@
 from Graph import Graph
+from os.path import exists
 
 # UI do VectorRace
 # juntar ao main
@@ -34,76 +35,105 @@ def ui_jogo():
 
             g = Graph()
             filename = input("insira ficheiro com circuito ---> ")
-            g.parse(filename)
-            g.make_graph()
-            print(g.print_graph())
-            l=input("prima enter para continuar")
+            if(exists(filename)):
+                g.parse(filename)
+                g.make_graph()
+                print(g.print_graph())
+                l=input("prima enter para continuar")
+            else:
+                print("Ficheiro não existe!!")
+                l= input("prima enter para continuar")
+            
 
         elif saida == 2:
             g = Graph()
             filename = input("insira ficheiro com circuito ---> ")
-            g.parse(filename)
-            g.make_graph()
-            g.desenha()
-            l = input("prima enter para continuar")
+            if(exists(filename)):
+                g.parse(filename)
+                g.make_graph()
+                g.desenha()
+                l = input("prima enter para continuar")
+            else:
+                print("Ficheiro não existe!!")
+                l= input("prima enter para continuar")
+                
 
         elif saida == 3:
             #Efetuar corrida com DFS
 
             g = Graph()
             filename = input("insira ficheiro com circuito ---> ")
-            g.parse(filename)
-            g.make_graph()
+            if(exists(filename)):
+                g.parse(filename)
+                g.make_graph()
 
-            print(g.procura_DFS( inicio, fim, path=[], visited=set()))    # ---> precisa de ser adaptado
-            l = input("prima enter para continuar")
+                print(g.procura_DFS( inicio, fim, path=[], visited=set()))    # ---> precisa de ser adaptado
+                l = input("prima enter para continuar")
+            else:
+                print("Ficheiro não existe!!")
+                l= input("prima enter para continuar")
 
         elif saida == 4:
             # Efetuar corrida com BFS
 
             g = Graph()
             filename = input("insira ficheiro com circuito ---> ")
-            g.parse(filename)
-            g.make_graph()
+            if(exists(filename)):
+                g.parse(filename)
+                g.make_graph()
 
-            print(g.procura_BFS(inicio, fim))  # ---> precisa de ser adaptado
-            l = input("prima enter para continuar")
+                print(g.procura_BFS(inicio, fim))  # ---> precisa de ser adaptado
+                l = input("prima enter para continuar")
+            else:
+                print("Ficheiro não existe!!")
+                l= input("prima enter para continuar")
 
         elif saida == 5:
             # Efetuar corrida com Gulosa
 
             g = Graph()
             filename = input("insira ficheiro com circuito ---> ")
-            g.parse(filename)
-            g.make_graph()
+            if(exists(filename)):
+                g.parse(filename)
+                g.make_graph()
 
-            print(g.greedy(inicio, fim))  # ---> precisa de ser adaptado
-            l = input("prima enter para continuar")
+                print(g.greedy(inicio, fim))  # ---> precisa de ser adaptado
+                l = input("prima enter para continuar")
+            else:
+                print("Ficheiro não existe!!")
+                l= input("prima enter para continuar")
 
         elif saida == 6:
             # Efetuar corrida com A*
 
             g = Graph()
             filename = input("insira ficheiro com circuito ---> ")
-            g.parse(filename)
-            g.make_graph()
+            if(exists(filename)):
+                g.parse(filename)
+                g.make_graph()
 
-            print(g.pesquisa_estrela(inicio,fim))    # ---> precisa de ser adaptado
-            l = input("prima enter para continuar")
+                print(g.pesquisa_estrela(inicio,fim))    # ---> precisa de ser adaptado
+                l = input("prima enter para continuar")
+            else:
+                print("Ficheiro não existe!!")
+                l= input("prima enter para continuar")
 
         elif saida == 7:
             # Efetuar corrida com Minimax
 
             g = Graph()
             filename = input("insira ficheiro com circuito ---> ")
-            g.parse(filename)
-            g.make_graph()
+            if(exists(filename)):
+                g.parse(filename)
+                g.make_graph()
 
-            # g.minimax()
+                # g.minimax()
 
-            l = input("prima enter para continuar")
+                l = input("prima enter para continuar")
+            else:
+                print("Ficheiro não existe!!")
+                l= input("prima enter para continuar")
 
         else:
             print("Opção inválida...")
             l = input("prima enter para continuar")
-
