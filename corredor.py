@@ -37,12 +37,9 @@ class Corredor:
     def __hash__(self):
         return hash(self.nome)
 
-    def acelera_linha(self, acel_lin):
+    def acelera(self, acel_lin, acel_col):
         self.p_lin = self.p_lin + self.v_lin + acel_lin
         self.v_lin = self.v_lin + acel_lin
-
-
-    def acelera_coluna(self, acel_col):
         self.p_col = self.p_col + self.v_col + acel_col
         self.v_col = self.v_col + acel_col
 
@@ -56,7 +53,3 @@ class Corredor:
                 lista.append([pos, a_lin, a_col])
 
         return lista
-
-
-
-

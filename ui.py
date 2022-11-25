@@ -18,11 +18,11 @@ def ui_jogo():
         print("2-Desenhar circuito")
         # print("3-Imprimir  nodos de circuito")
         # print("4-Imprimir arestas de circuito")
-        print("2-Corrida com DFS")
-        print("3-Corrida com BFS")
-        print("4-Corrida com Pesquisa Gulosa")
-        print("5-Corrida com Pesquisa A*")
-        print("6-Corrida com Minimax")
+        print("3-Corrida com DFS")
+        print("4-Corrida com BFS")
+        print("5-Corrida com Pesquisa Gulosa")
+        print("6-Corrida com Pesquisa A*")
+        print("7-Corrida com Minimax")
         print("0-Saír")
 
         saida = int(input("introduza a sua opcao-> "))
@@ -67,7 +67,8 @@ def ui_jogo():
                 g.parse(filename)
                 g.make_graph()
 
-                print(g.procura_DFS(inicio, fim, path=[], visited=set()))  # ---> precisa de ser adaptado
+                res = g.procura_DFS(g.m_start[0], g.m_ending, path=[], visited=set())
+                g.print_result(res)
                 l = input("prima enter para continuar")
             else:
                 print("Ficheiro não existe!!")
@@ -82,7 +83,8 @@ def ui_jogo():
                 g.parse(filename)
                 g.make_graph()
 
-                print(g.procura_BFS(inicio, fim))  # ---> precisa de ser adaptado
+                res = g.procura_BFS(g.m_start[0], g.m_ending)
+                g.print_result(res)
                 l = input("prima enter para continuar")
             else:
                 print("Ficheiro não existe!!")
