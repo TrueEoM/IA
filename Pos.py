@@ -4,7 +4,7 @@ class Pos:
         self.m_x    = x
         self.m_y    = y
         self.m_type = type
-        self.cost = cost
+        self.m_cost = cost
 
     def __str__(self):
         out = "(" + str(self.m_x) + "," + str(self.m_y) + "," + self.m_type + ")"

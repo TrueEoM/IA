@@ -1,3 +1,5 @@
+import math
+
 from Pos import Pos
 import networkx as nx
 import matplotlib.pyplot as plt
@@ -61,6 +63,24 @@ class Graph:
                             continue
                         result.append(self.m_map[newCol][newRow])
         return result
+
+    def get_arc_cost(self, pos1, pos2):
+        cost = math.inf
+        adj = self.m_graph[pos1]
+        for pos in adj:
+            if pos == pos2:
+                cost = pos.m_cost
+
+        return cost
+
+    def calc_custo(self, path):
+        cost = 0
+        i = 0
+        while i+1 < len(path):
+            cost = cost + self.get_arc_cost(path[i], path[i+1])
+            i = i + 1
+
+        return cost
 
     def make_graph(self):
         for posLine in self.m_map:
