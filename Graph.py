@@ -28,8 +28,14 @@ class Graph:
                 posLine = []
                 for c in line:
                     if c == "X" or c == "-" or c == "F" or c == "P":
-                        self.m_pos.append(Pos(x, y, c))
-                        posLine.append(Pos(x, y, c))
+                        if c == "X":
+                            pos = Pos(x, y, c, cost=25)
+                            self.m_pos.append(pos)
+                            posLine.append(pos)
+                        else:
+                            pos = Pos(x, y, c)
+                            self.m_pos.append(pos)
+                            posLine.append(pos)
                         x += 1
                 self.m_map.append(posLine)
                 x = 0
