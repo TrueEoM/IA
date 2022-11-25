@@ -16,8 +16,7 @@ class Pos:
         return self.m_type
 
     def __eq__(self, other):
-        coordOther = other.get_xy
-        return self.m_x == coordOther[0] and self.m_y == coordOther[1]
+        return self.m_x == other.m_x and self.m_y == other.m_y
 
     def __hash__(self):
         return hash(self.m_name)

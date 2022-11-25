@@ -39,7 +39,7 @@ class Graph:
 
     def get_pos(self, x, y):
         for pos in self.m_pos:
-            if pos.get_xy() == (x,y):
+            if pos.get_xy() == (x, y):
                 return pos
         return None
 
@@ -55,7 +55,6 @@ class Graph:
                             continue
                         result.append(self.m_map[newCol][newRow])
         return result
-
 
     def make_graph(self):
         for posLine in self.m_map:
@@ -92,8 +91,8 @@ class Graph:
 
         # desenhar o grafo
         pos = nx.spring_layout(g)
-        nx.draw_networkx(g, pos, with_labels=True, font_weight='bold')
-        labels = nx.get_edge_attributes(g, 'weight')
+        nx.draw_networkx(g, pos=pos, with_labels=True, font_weight='bold')
+        labels = nx.get_edge_attributes(g, 'cost')
         nx.draw_networkx_edge_labels(g, pos, edge_labels=labels)
 
         plt.draw()
