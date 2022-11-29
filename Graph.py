@@ -194,6 +194,37 @@ class Graph:
         path.pop()  # se nao encontra remover o que está no caminho......
         return None
 
+    ################################################################################
+    # Procura Iterativa
+    ################################################################################
+
+    def procura_DFS_lim(self, start, end, limit, path=[], visited=set()):
+        path.append(start)
+        visited.add(start)
+
+        if start in end:
+            # calcular o custo do caminho funçao calcula custo
+            cost = self.calc_custo(path)
+            return path, cost
+
+        if limit <= 0:
+            return None
+
+        for adjacente in self.ord_by_forward(start, self.m_graph[start]):
+            if adjacente not in visited and adjacente.m_type != "X":
+                res = self.procura_DFS_lim(adjacente, end, limit-1, path, visited)
+                if res is not None:
+                    return res
+        path.pop()
+        return None
+
+    def procura_iterativa(self, start, end, maxDepth):
+        for n in range(maxDepth):
+            res = self.procura_DFS_lim(start, end, n, path=[], visited=set())
+            if res is not None:
+                return res
+
+        return None
 
     ################################################################################
         # Procura BFS
