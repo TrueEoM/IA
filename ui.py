@@ -110,21 +110,6 @@ def ui_jogo():
                 print("Ficheiro não existe!!")
                 l = input("prima enter para continuar")
 
-        elif saida == 6:
-            # Efetuar corrida com A*
-
-            g = Graph()
-            filename = input("insira ficheiro com circuito ---> ")
-            if (exists(filename)):
-                g.parse(filename)
-                g.make_graph()
-
-                print(g.pesquisa_estrela(inicio, fim))  # ---> precisa de ser adaptado
-                l = input("prima enter para continuar")
-            else:
-                print("Ficheiro não existe!!")
-                l = input("prima enter para continuar")
-
         elif saida == 7:
             # Efetuar corrida com Minimax
 
