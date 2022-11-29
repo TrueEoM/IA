@@ -121,6 +121,13 @@ class Graph:
             print(out)
         print("Cost: " + str(path[1]))
 
+        pathStr = ""
+        for pos in path[0]:
+            pathStr = pathStr + str(pos) + " -> "
+
+        pathStr = pathStr[:len(pathStr)-4:]
+        print(pathStr)
+
     def desenha(self):
         #criar lista de vertices
         lista_v = self.m_pos
@@ -147,6 +154,28 @@ class Graph:
     ################################################################################
 
 
+    def ord_by_forward(self, pos, adj):
+        coord = pos.get_xy()
+        map_mid_x = len(self.m_map[0]) / 2
+        ord = []
+
+        if coord[0] < map_mid_x:
+            for posAdj in adj:
+                coordAdj = posAdj.get_xy()
+                if coordAdj[0] == coord[0] + 1:
+                    ord = [posAdj] + ord
+                else:
+                    ord.append(posAdj)
+        else:
+            for posAdj in adj:
+                coordAdj = posAdj.get_xy()
+                if coordAdj[0] == coord[0] - 1:
+                    ord = [posAdj] + ord
+                else:
+                    ord.append(posAdj)
+
+        return ord
+
     def procura_DFS(self, start, end, path=[], visited=set()):
         path.append(start)
         visited.add(start)
@@ -155,8 +184,10 @@ class Graph:
             # calcular o custo do caminho funçao calcula custo.
             cost = self.calc_custo(path)
             return path, cost
-        for adjacente in self.m_graph[start]:
+
+        for adjacente in self.ord_by_forward(start, self.m_graph[start]):
             if adjacente not in visited and adjacente.m_type != "X":
+
                 res = self.procura_DFS(adjacente, end, path, visited)
                 if res is not None:
                     return res
