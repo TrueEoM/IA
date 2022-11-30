@@ -18,7 +18,7 @@ def ui_jogo():
         print("2-Desenhar circuito")
         print("3-Corrida com DFS")
         print("4-Corrida com BFS")
-        print("3-Corrida com Iterativa")
+        print("5-Corrida com Iterativa")
         # print("5-Corrida com Pesquisa Gulosa")
         # print("6-Corrida com Pesquisa A*")
         # print("7-Corrida com Minimax")
