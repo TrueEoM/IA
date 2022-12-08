@@ -86,8 +86,8 @@ class Graph:
     def calc_custo(self, path):
         cost = 0
         i = 0
-        while i+1 < len(path):
-            cost = cost + self.get_arc_cost(path[i], path[i+1])
+        while i + 1 < len(path):
+            cost = cost + self.get_arc_cost(path[i], path[i + 1])
             i = i + 1
 
         return cost
@@ -122,7 +122,7 @@ class Graph:
         print("Cost: " + str(path[1]))
 
     def desenha(self):
-        #criar lista de vertices
+        # criar lista de vertices
         lista_v = self.m_pos
         g = nx.Graph()
 
@@ -143,9 +143,8 @@ class Graph:
         plt.show()
 
     ################################################################################
-        # Procura DFS
+    # Procura DFS [DONE]
     ################################################################################
-
 
     def procura_DFS(self, start, end, path=[], visited=set()):
         path.append(start)
@@ -163,11 +162,9 @@ class Graph:
         path.pop()  # se nao encontra remover o que está no caminho......
         return None
 
-
     ################################################################################
-        # Procura BFS
+    # Procura BFS [DONE]
     ################################################################################
-
 
     def procura_BFS(self, start, end):
         # Set of visited nodes to prevent loops
@@ -209,11 +206,9 @@ class Graph:
             path.reverse()
         return path, self.calc_custo(path)
 
-
     ################################################################################
-        # Pesquisa gulosa
+    # Pesquisa gulosa
     ################################################################################
-
 
     def greedy(self, start, end):
         # open_list é uma lista de nodos visitados, mas com vizinhos
@@ -264,7 +259,6 @@ class Graph:
                     open_list.add(m)
                     parents[m] = n
 
-
             # remover n da open_list e adiciona-lo à closed_list
             # porque todos os seus vizinhos foram inspecionados
             open_list.remove(n)
@@ -273,11 +267,9 @@ class Graph:
         print('Path does not exist!')
         return None
 
-
     ################################################################################
-        # Pesquisa A* (estrela)
+    # Pesquisa A* (estrela)
     ################################################################################
-
 
     def pesquisa_estrela(self, start, end):
         open_list = set([start])
@@ -331,37 +323,3 @@ class Graph:
 
         print('Path does not exist!')
         return None
-
-    ################################################################################
-        # Algoritmo Minimax
-    ################################################################################
-
-    def minimax(estado, profundidade, jogador):
-
-        # se calhar mais adequado para modo de dois jogadores
-
-        if jogador == BOT:
-            best = [-1, -1 , -math.inf]
-        else:
-            best = [-1 , -1, +math.inf]
-
-        if profundidade == 0 or (verifica_vitoria(estado, HUMANO)) or verifica_vitoria(estado, BOT):
-            score = avaliar(estado)
-            return [-1, -1, score]
-
-        for call in celulas_vazias(estado):
-            x, y = call[0], call[1]
-            estado[x][y] = jogador
-            score = minimax(estado, profundidade - 1, -jogador) # "-jogador" faz a alternação entre HUMANO e ADVERSARIO
-            estado[x][y] = 0
-            score[0], score[1] = x, y
-
-            if jogador == BOT:
-                if score[2] > best[2]:
-                    best = score
-
-            else:
-                if score[2] < best[2]:
-                    best = score
-
-        return best
