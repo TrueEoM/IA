@@ -157,10 +157,18 @@ class Graph:
     def ord_by_forward(self, pos, adj):
         coord = pos.get_xy()
         map_mid_x = len(self.m_map[0]) / 2
-        ord = []
 
         if coord[0] < map_mid_x:
-            ord = sorted(adj, key=lambda x: x.m_x)
+            ord = sorted(adj, key=lambda x: (x.m_x, x.m_y), reverse=True)
+        else:
+            ord = sorted(adj, key=lambda x: (x.m_x, x.m_y))
+
+        return ord
+
+    """
+        ord = []
+    
+        if coord[0] < map_mid_x:
             for posAdj in adj:
                 coordAdj = posAdj.get_xy()
                 if coordAdj[0] == coord[0] + 1:
@@ -174,9 +182,7 @@ class Graph:
                     ord = [posAdj] + ord
                 else:
                     ord.append(posAdj)
-
-        return ord
-
+    """
     def procura_DFS(self, start, end, path=[], visited=set()):
         path.append(start)
         visited.add(start)
@@ -196,7 +202,7 @@ class Graph:
         return None
 
     ################################################################################
-    # Procura Iterativa
+    # Procura Iterativa [DONE]
     ################################################################################
 
     def procura_DFS_lim(self, start, end, limit, path=[], visited=set()):
