@@ -160,6 +160,7 @@ class Graph:
         ord = []
 
         if coord[0] < map_mid_x:
+            ord = sorted(adj, key=lambda x: x.m_x)
             for posAdj in adj:
                 coordAdj = posAdj.get_xy()
                 if coordAdj[0] == coord[0] + 1:
