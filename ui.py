@@ -1,5 +1,6 @@
 from Graph import Graph
 from os.path import exists
+from corredor import Corredor as car
 
 
 # UI do VectorRace
@@ -66,8 +67,19 @@ def ui_jogo():
                 g.parse(filename)
                 g.make_graph()
 
-                res = g.procura_DFS(g.m_start[0], g.m_ending, path=[], visited=set())
-                g.print_result(res)
+                if len(g.m_carros) > 1:
+                    res = g.procura_DFS_multi(g.m_carros, g.m_ending)
+                    i = 0
+
+                    for c in res:
+                        print(c + ": ")
+                        cost = g.calc_custo(res.get(c))
+                        g.print_result_multi((res.get(c), cost), i)
+                        i += 1
+                else:
+                    res = g.procura_DFS(g.m_start[0], g.m_ending, path=[], visited=set())
+                    g.print_result(res)
+
                 l = input("prima enter para continuar")
             else:
                 print("Ficheiro não existe!!")
