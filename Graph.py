@@ -1,10 +1,12 @@
 import math
+import random
 from queue import Queue
 from Pos import Pos
 from Bcolor import Bcolors as bc
 import corredor as car
 import networkx as nx
 import matplotlib.pyplot as plt
+import copy
 
 
 class Graph:
@@ -30,6 +32,7 @@ class Graph:
 
             x = 0
             y = 0
+            carid = 1
 
             for line in Lines:
                 posLine = []
@@ -44,7 +47,8 @@ class Graph:
                             self.m_pos.append(pos)
                             posLine.append(pos)
                             if c == "P":
-                                carro = car.Corredor("c" + str(x), pos, 0, 0)
+                                carro = car.Corredor("c" + str(carid), pos, 0, 0)
+                                carid += 1
                                 self.m_start.append(pos)
                                 self.m_carros.append(carro)
                             elif c == "F":
@@ -118,12 +122,15 @@ class Graph:
                 if pos not in path[0]:
                     out = out + str(pos.m_type) + " "
                 else:
-                    out = out + f"{path[0].index(pos)  % 10} "
+                    out = out + f"{path[0].index(pos) % 10} "
             print(out)
 
         self.cost_path_print(path)
 
-    def print_result_multi(self, path, color=0):
+    def print_result_multi(self, path, colorB=False):
+        if colorB == True:
+            color = random.randint(0, 6)
+
         for posLine in self.m_map:
             out = ""
             for pos in posLine:
@@ -131,13 +138,19 @@ class Graph:
                     out = out + str(pos.m_type) + " "
                 else:
                     if color == 1:
-                        out = out + f"{bc.BLUE}" + str(path[0].index(pos) % 10) + f"{bc.ENDC} "
+                        out = out + f"{bc.RED}" + str(path[0].index(pos) % 10) + f"{bc.ENDC} "
                     elif color == 2:
-                        out = out + f"{bc.CYAN}" + str(path[0].index(pos)  % 10) + f"{bc.ENDC} "
+                        out = out + f"{bc.GREEN}" + str(path[0].index(pos) % 10) + f"{bc.ENDC} "
                     elif color == 3:
-                        out = out + f"{bc.GREEN}" + str(path[0].index(pos)  % 10) + f"{bc.ENDC} "
+                        out = out + f"{bc.YELLOW}" + str(path[0].index(pos) % 10) + f"{bc.ENDC} "
+                    elif color == 4:
+                        out = out + f"{bc.BLUE}" + str(path[0].index(pos) % 10) + f"{bc.ENDC} "
+                    elif color == 5:
+                        out = out + f"{bc.PURPLE}" + str(path[0].index(pos) % 10) + f"{bc.ENDC} "
+                    elif color == 6:
+                        out = out + f"{bc.CYAN}" + str(path[0].index(pos) % 10) + f"{bc.ENDC} "
                     else:
-                        out = out + f"{path[0].index(pos)  % 10} "
+                        out = out + f"{path[0].index(pos) % 10} "
             print(out)
 
         self.cost_path_print(path)
@@ -177,35 +190,21 @@ class Graph:
     # Procura DFS [DONE]
     ################################################################################
 
-    def ord_by_forward(self, pos, adj):
-        coord = pos.get_xy()
+    def ord_by_forward(self, start, pos, adj, multi=False):
         map_mid_x = len(self.m_map[0]) / 2
 
-        if coord[0] < map_mid_x:
-            ord = sorted(adj, key=lambda x: (x.m_x, x.m_y), reverse=True)
+        if multi == False:
+            if start.m_x < map_mid_x:
+                ord = sorted(adj, key=lambda e: (e.m_x, e.m_y == pos.m_y), reverse=True)
+            else:
+                ord = sorted(adj, key=lambda e: (e.m_x, e.m_y == pos.m_y))
         else:
-            ord = sorted(adj, key=lambda x: (x.m_x, x.m_y))
+            if start.m_x < map_mid_x:
+                ord = sorted(adj, key=lambda e: (e.m_x, e.m_y == pos.m_y))
+            else:
+                ord = sorted(adj, key=lambda e: (e.m_x, e.m_y == pos.m_y), reverse=True)
 
         return ord
-
-    """
-        ord = []
-    
-        if coord[0] < map_mid_x:
-            for posAdj in adj:
-                coordAdj = posAdj.get_xy()
-                if coordAdj[0] == coord[0] + 1:
-                    ord = [posAdj] + ord
-                else:
-                    ord.append(posAdj)
-        else:
-            for posAdj in adj:
-                coordAdj = posAdj.get_xy()
-                if coordAdj[0] == coord[0] - 1:
-                    ord = [posAdj] + ord
-                else:
-                    ord.append(posAdj)
-    """
 
     def procura_DFS(self, start, end, path=[], visited=set()):
         path.append(start)
@@ -216,7 +215,7 @@ class Graph:
             cost = self.calc_custo(path)
             return path, cost
 
-        for adjacente in self.ord_by_forward(start, self.m_graph[start]):
+        for adjacente in self.ord_by_forward(path[0], start, self.m_graph[start]):
             if adjacente not in visited and adjacente.m_type != "X":
 
                 res = self.procura_DFS(adjacente, end, path, visited)
@@ -225,7 +224,7 @@ class Graph:
         path.pop()  # se nao encontra remover o que está no caminho......
         return None
 
-    def procura_DFS_multi(self, carros, end): #TODO FIX THEY STILL GO TO SAME POS AT SAME TIME
+    def procura_DFS_multi(self, carros, end):
         path = dict()
         visited = dict()
         stack = dict()
@@ -244,6 +243,8 @@ class Graph:
                     s = stack[c.nome].pop()
 
                 c.pos = s
+                car_pos.pop(0)
+                car_pos.append(c.pos)
 
                 if c.nome in path.keys():
                     path[c.nome].append(c.pos)
@@ -255,12 +256,11 @@ class Graph:
                 if c.pos in end:
                     carros.remove(c)
                 else:
-                    for adjacente in self.ord_by_forward(c.pos, self.m_graph[c.pos]):
+                    for adjacente in self.ord_by_forward(path.get(c.nome)[0], c.pos, self.m_graph[c.pos], multi=True):
                         if adjacente not in visited[c.nome] and adjacente.m_type != "X":
                             stack[c.nome].append(adjacente)
 
         return path
-
 
     ################################################################################
     # Procura Iterativa [DONE]
@@ -271,14 +271,13 @@ class Graph:
         visited.add(start)
 
         if start in end:
-            # calcular o custo do caminho funçao calcula custo
             cost = self.calc_custo(path)
             return path, cost
 
         if limit <= 0:
             return None
 
-        for adjacente in self.ord_by_forward(start, self.m_graph[start]):
+        for adjacente in self.ord_by_forward(path[0], start, self.m_graph[start]):
             if adjacente not in visited and adjacente.m_type != "X":
                 res = self.procura_DFS_lim(adjacente, end, limit - 1, path, visited)
                 if res is not None:
@@ -289,6 +288,59 @@ class Graph:
     def procura_iterativa(self, start, end, maxDepth):
         for n in range(maxDepth):
             res = self.procura_DFS_lim(start, end, n, path=[], visited=set())
+            if res is not None:
+                return res
+
+        return None
+
+    def procura_DFS_lim_multi(self, carros, end, limit):
+        path = dict()
+        visited = dict()
+        stack = dict()
+
+        for c in carros:
+            stack[c.nome] = [c.pos]
+
+        while len(stack) != 0 and len(carros) != 0:
+            car_pos = []
+            for c in carros:
+                car_pos.append(c.pos)
+
+            for c in carros:
+                s = stack[c.nome].pop()
+                while s in car_pos and s != c.pos:
+                    s = stack[c.nome].pop()
+
+                c.pos = s
+                car_pos.pop(0)
+                car_pos.append(c.pos)
+
+                if c.nome in path.keys():
+                    path[c.nome].append(c.pos)
+                    visited[c.nome].append(c.pos)
+                else:
+                    path[c.nome] = [c.pos]
+                    visited[c.nome] = [c.pos]
+
+                if c.pos in end or limit <= 0:
+                    carros.remove(c)
+                else:
+                    for adjacente in self.ord_by_forward(path.get(c.nome)[0], c.pos, self.m_graph[c.pos], multi=True):
+                        if adjacente not in visited[c.nome] and adjacente.m_type != "X":
+                            stack[c.nome].append(adjacente)
+
+            limit -= 1
+
+        for c in path:
+            lastelem = path.get(c)[-1]
+            if lastelem not in end:
+                return None
+
+        return path
+
+    def procura_iterativa_multi(self, carros, end, maxDepth):
+        for n in range(1, maxDepth + 1):
+            res = self.procura_DFS_lim_multi(copy.deepcopy(carros), end, n)
             if res is not None:
                 return res
 

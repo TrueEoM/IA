@@ -69,13 +69,11 @@ def ui_jogo():
 
                 if len(g.m_carros) > 1:
                     res = g.procura_DFS_multi(g.m_carros, g.m_ending)
-                    i = 0
 
                     for c in res:
                         print(c + ": ")
                         cost = g.calc_custo(res.get(c))
-                        g.print_result_multi((res.get(c), cost), i)
-                        i += 1
+                        g.print_result_multi((res.get(c), cost), True)
                 else:
                     res = g.procura_DFS(g.m_start[0], g.m_ending, path=[], visited=set())
                     g.print_result(res)
@@ -110,13 +108,26 @@ def ui_jogo():
                 g.parse(filename)
                 g.make_graph()
 
-                res = g.procura_iterativa(g.m_start[0], g.m_ending, 1)
-                i = 2
-                while res is None:
-                    res = g.procura_iterativa(g.m_start[0], g.m_ending, i)
-                    i += 1
+                if len(g.m_carros) > 1:
+                    res = None
+                    i = 1
+                    while res is None:
+                        res = g.procura_iterativa_multi(g.m_carros, g.m_ending, i)
+                        i += 1
 
-                g.print_result((res[0], len(res[0])))
+                    for c in res:
+                        print(c + ": ")
+                        cost = g.calc_custo(res.get(c))
+                        g.print_result_multi((res.get(c), cost), True)
+                else:
+                    res = None
+                    i = 1
+                    while res is None:
+                        res = g.procura_iterativa(g.m_start[0], g.m_ending, i)
+                        i += 1
+
+                    g.print_result((res[0], len(res[0])))
+
                 l = input("prima enter para continuar")
             else:
                 print("Ficheiro não existe!!")
