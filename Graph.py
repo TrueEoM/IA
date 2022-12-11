@@ -371,6 +371,8 @@ class Graph:
                 path_found = True
                 break
 
+            # There isn't much difference between ordering the adj. list and not doing so.
+            # self.ord_by_forward(start, current_node, self.m_graph[current_node])
             for next_node in self.m_graph[current_node]:
                 if next_node not in visited and next_node.m_type != "X":
                     queue.put(next_node)
@@ -389,6 +391,64 @@ class Graph:
                 end = parent[end]
             path.reverse()
         return path, self.calc_custo(path)
+
+    def procura_BFS_multi(self, carros, end):
+        visited = dict()
+        queue = dict()
+        parent = dict()
+        path_found = dict()
+        cfinal = []
+
+        for c in carros:
+            queue[c.nome] = Queue()
+            queue[c.nome].put(c.pos)
+            visited[c.nome] = set()
+            visited[c.nome].add(c.pos)
+            parent[c.nome] = dict()
+            parent[c.nome][c.pos] = None
+            path_found[c.nome] = False
+
+        while len(queue) != 0 and len(carros) != 0:
+            car_pos = []
+            for c in carros:
+                car_pos.append(c.pos)
+
+            for c in carros:
+                current_node = queue[c.nome].get()
+
+                while current_node in car_pos and current_node != c.pos:
+                    current_node = queue[c.nome].get()
+
+                c.pos = current_node
+
+                if current_node in end:
+                    path_found[c.nome] = True
+                    cfinal.append(copy.deepcopy(c))
+                    carros.remove(c)
+                    break
+
+                for next_node in self.m_graph[current_node]:
+                    if next_node not in visited[c.nome] and next_node.m_type != "X":
+                        queue[c.nome].put(next_node)
+                        parent[c.nome][next_node] = current_node
+                        visited[c.nome].add(next_node)
+
+        # Path reconstruction
+        path = dict()
+        for c in cfinal:
+            if path_found[c.nome]:
+                if c.pos in end:
+                    endpos = c.pos
+
+                path[c.nome] = []
+                path[c.nome].append(endpos)
+
+                while parent[c.nome][endpos] is not None:
+                    path[c.nome].append(parent[c.nome][endpos])
+                    endpos = parent[c.nome][endpos]
+                path[c.nome].reverse()
+
+        return path
 
     ################################################################################
     # Pesquisa gulosa
