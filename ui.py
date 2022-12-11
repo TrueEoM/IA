@@ -152,7 +152,17 @@ def ui_jogo():
                 g.make_graph()
                 g.build_heu()
 
-                print("teste")
+                if len(g.m_carros) > 1:
+                    res = g.greedy_multi(g.m_carros, g.m_ending)
+
+                    for c in res:
+                        print(c + ": ")
+                        cost = g.calc_custo(res.get(c))
+                        g.print_result_multi((res.get(c), cost), True)
+                else:
+                    res = g.greedy(g.m_start[0], g.m_ending)
+                    cost = g.calc_custo(res)
+                    g.print_result((res, cost))
 
                 l = input("prima enter para continuar")
             else:

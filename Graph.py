@@ -84,9 +84,14 @@ class Graph:
 
     def build_heu(self):
         for pos in self.m_pos:
-            self.m_h[pos] = []
-            for end in self.m_ending:
-                self.m_h[pos].append((end, self.dist(pos, end)))
+            if pos not in self.m_ending:
+                self.m_h[pos] = []
+                for end in self.m_ending:
+                    self.m_h[pos].append(self.dist(pos, end))
+                    # self.m_h[pos].append((end, self.dist(pos, end)))
+            else:
+                self.m_h[pos] = []
+                self.m_h[pos].append(0)
 
     def get_arc_cost(self, pos1, pos2):
         cost = math.inf
@@ -436,6 +441,9 @@ class Graph:
                     carros.remove(c)
                     break
 
+                car_pos.pop(0)
+                car_pos.append(current_node)
+
                 for next_node in self.m_graph[current_node]:
                     if next_node not in visited[c.nome] and next_node.m_type != "X":
                         queue[c.nome].put(next_node)
@@ -460,65 +468,114 @@ class Graph:
         return path
 
     ################################################################################
-    # Pesquisa gulosa TODO
+    # Pesquisa gulosa
     ################################################################################
 
     def greedy(self, start, end):
-        # open_list é uma lista de nodos visitados, mas com vizinhos
-        # que ainda não foram todos visitados, começa com o start
-        # closed_list é uma lista de nodos visitados
-        # e todos os seus vizinhos também já o foram
-        open_list = set([start])
-        closed_list = set([])
+        open_list = set()
+        open_list.add(start)
+        closed_list = set()
 
-        # parents é um dicionário que mantém o antecessor de um nodo
-        # começa com start
-        parents = {}
+        parents = dict()
         parents[start] = start
 
         while len(open_list) > 0:
-            n = None
+            best_pos = None
 
             # encontraf nodo com a menor heuristica
-            for v in open_list:
-                if n == None or self.m_h[v] < self.m_h[n]:
-                    n = v
+            for fpos in open_list:
+                if best_pos is None or min(self.m_h[fpos]) < min(self.m_h[best_pos]):
+                    best_pos = fpos
 
-            if n == None:
-                print('Path does not exist!')
+            if best_pos is None:
                 return None
 
-            # se o nodo corrente é o destino
-            # reconstruir o caminho a partir desse nodo até ao start
-            # seguindo o antecessor
-            if n == end:
-                reconst_path = []
+            if best_pos in end:
+                path = []
 
-                while parents[n] != n:
-                    reconst_path.append(n)
-                    n = parents[n]
+                while parents[best_pos] != best_pos:
+                    path.append(best_pos)
+                    best_pos = parents[best_pos]
 
-                reconst_path.append(start)
+                path.append(start)
 
-                reconst_path.reverse()
+                path.reverse()
 
-                return (reconst_path, self.calcula_custo(reconst_path))
+                return path
 
             # para todos os vizinhos  do nodo corrente
-            for (m, weight) in self.getNeighbours(n):
-                # Se o nodo corrente nao esta na open nem na closed list
-                # adiciona-lo à open_list e marcar o antecessor
-                if m not in open_list and m not in closed_list:
-                    open_list.add(m)
-                    parents[m] = n
+            for adj in self.neighbors(best_pos.m_x, best_pos.m_y):
+                if adj.m_type != "X" and adj not in open_list and adj not in closed_list:
+                    open_list.add(adj)
+                    parents[adj] = best_pos
 
-            # remover n da open_list e adiciona-lo à closed_list
-            # porque todos os seus vizinhos foram inspecionados
-            open_list.remove(n)
-            closed_list.add(n)
+            open_list.remove(best_pos)
+            closed_list.add(best_pos)
 
-        print('Path does not exist!')
         return None
+
+    def greedy_multi(self, carros, end):
+        cfinal = []
+        open_list = dict()
+        closed_list = dict()
+        parents = dict()
+
+        for c in carros:
+            open_list[c.nome] = set()
+            open_list[c.nome].add(c.pos)
+            closed_list[c.nome] = set()
+            parents[c.nome] = dict()
+            parents[c.nome][c.pos] = None
+
+        while len(open_list) > 0 and len(carros) > 0:
+            car_pos = []
+            for c in carros:
+                car_pos.append(c.pos)
+
+            for c in carros:
+                best_pos = None
+
+                for fpos in open_list[c.nome]:
+                    if best_pos is None or min(self.m_h[fpos]) < min(self.m_h[best_pos]):
+                        best_pos = fpos
+
+                if best_pos is None:
+                    carros.remove(c)
+
+                c.pos = best_pos
+
+                if best_pos in end:
+                    cfinal.append(copy.deepcopy(c))
+                    carros.remove(c)
+
+                car_pos.pop(0)
+                car_pos.append(best_pos)
+
+                for adj in self.neighbors(best_pos.m_x, best_pos.m_y):
+                    if adj.m_type != "X" and adj not in open_list.get(c.nome) and adj not in closed_list.get(c.nome):
+                        open_list[c.nome].add(adj)
+                        parents[c.nome][adj] = best_pos
+
+                open_list[c.nome].remove(best_pos)
+                closed_list[c.nome].add(best_pos)
+
+        if len(carros) == 0:
+            path = dict()
+            for c in cfinal:
+                if c.pos in end:
+                    endpos = c.pos
+
+                    path[c.nome] = []
+                    path[c.nome].append(endpos)
+
+                    while parents[c.nome][endpos] is not None:
+                        path[c.nome].append(parents[c.nome][endpos])
+                        endpos = parents[c.nome][endpos]
+                    path[c.nome].reverse()
+
+            return path
+        else:
+            return None
 
     ################################################################################
     # Pesquisa A* (estrela)
