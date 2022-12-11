@@ -79,6 +79,15 @@ class Graph:
                         result.append(self.m_map[newCol][newRow])
         return result
 
+    def dist(self, pos1, pos2):
+        return math.dist(pos1.get_xy(), pos2.get_xy())
+
+    def build_heu(self):
+        for pos in self.m_pos:
+            self.m_h[pos] = []
+            for end in self.m_ending:
+                self.m_h[pos].append((end, self.dist(pos, end)))
+
     def get_arc_cost(self, pos1, pos2):
         cost = math.inf
         adj = self.m_graph[pos1]
@@ -451,12 +460,12 @@ class Graph:
         return path
 
     ################################################################################
-    # Pesquisa gulosa
+    # Pesquisa gulosa TODO
     ################################################################################
 
     def greedy(self, start, end):
         # open_list é uma lista de nodos visitados, mas com vizinhos
-        # que ainda não foram todos visitados, começa com o  start
+        # que ainda não foram todos visitados, começa com o start
         # closed_list é uma lista de nodos visitados
         # e todos os seus vizinhos também já o foram
         open_list = set([start])

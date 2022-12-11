@@ -20,7 +20,7 @@ def ui_jogo():
         print("3-Corrida com DFS")
         print("4-Corrida com BFS")
         print("5-Corrida com Iterativa")
-        # print("5-Corrida com Pesquisa Gulosa")
+        print("6-Corrida com Pesquisa Gulosa")
         # print("6-Corrida com Pesquisa A*")
         # print("7-Corrida com Minimax")
         print("0-Saír")
@@ -142,16 +142,17 @@ def ui_jogo():
                 print("Ficheiro não existe!!")
                 l = input("prima enter para continuar")
 
-        elif saida == 7:
-            # Efetuar corrida com Minimax
+        elif saida == 6:
+            # Efetuar corrida com Greedy
 
             g = Graph()
             filename = input("insira ficheiro com circuito ---> ")
             if (exists(filename)):
                 g.parse(filename)
                 g.make_graph()
+                g.build_heu()
 
-                # g.minimax()
+                print("teste")
 
                 l = input("prima enter para continuar")
             else:
