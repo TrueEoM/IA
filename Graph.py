@@ -207,7 +207,7 @@ class Graph:
     def ord_by_forward(self, start, pos, adj, multi=False):
         map_mid_x = len(self.m_map[0]) / 2
 
-        if multi == False:
+        if not multi:
             if start.m_x < map_mid_x:
                 ord = sorted(adj, key=lambda e: (e.m_x, e.m_y == pos.m_y), reverse=True)
             else:
@@ -225,7 +225,6 @@ class Graph:
         visited.add(start)
 
         if start in end:
-            # calcular o custo do caminho funçao calcula custo.
             cost = self.calc_custo(path)
             return path, cost
 
@@ -235,7 +234,31 @@ class Graph:
                 res = self.procura_DFS(adjacente, end, path, visited)
                 if res is not None:
                     return res
-        path.pop()  # se nao encontra remover o que está no caminho......
+
+        path.pop()
+        return None
+
+    # TODO It keeps increasing its speed and so never manages to find the end
+    def procura_DFS_accel(self, carro, end, path=[], visited=set()):
+        path.append(carro.pos)
+        visited.add(carro.pos)
+
+        if carro.pos in end:
+            # calcular o custo do caminho funçao calcula custo.
+            cost = self.calc_custo(path)
+            return path, cost
+
+        for adjacente in self.ord_by_forward(path[0], carro.pos, carro.neighbours()):
+            pos = self.get_pos(adjacente.m_x, adjacente.m_y)
+            if pos is not None:
+                if pos not in visited and pos.m_type != "X":
+                    carro.acelera(pos.m_x, pos.m_y)
+
+                    res = self.procura_DFS_accel(carro, end, path, visited)
+                    if res is not None:
+                        return res
+
+        path.pop()
         return None
 
     def procura_DFS_multi(self, carros, end):
@@ -578,7 +601,7 @@ class Graph:
             return None
 
     ################################################################################
-    # Pesquisa A* (estrela)
+    # Pesquisa A* (estrela) TODO
     ################################################################################
 
     def pesquisa_estrela(self, start, end):

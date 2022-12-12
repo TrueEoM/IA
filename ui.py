@@ -76,6 +76,7 @@ def ui_jogo():
                         g.print_result_multi((res.get(c), cost), True)
                 else:
                     res = g.procura_DFS(g.m_start[0], g.m_ending, path=[], visited=set())
+                    # res = g.procura_DFS_accel(g.m_carros[0], g.m_ending, path=[], visited=set())
                     g.print_result(res)
 
                 l = input("prima enter para continuar")

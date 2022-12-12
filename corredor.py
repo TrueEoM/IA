@@ -32,11 +32,11 @@ class Corredor:
     def __hash__(self):
         return hash(self.nome)
 
-    def acelera(self, acel_lin, acel_col):
-        self.pos.m_x = self.pos.m_x + self.v_lin + acel_lin
-        self.v_lin = self.v_lin + acel_lin
-        self.pos.m_y = self.pos.m_y + self.v_col + acel_col
-        self.v_col = self.v_col + acel_col
+    def acelera(self, x, y):
+        self.pos.m_x = self.pos.m_x + self.v_lin + (abs(self.pos.m_x - x))
+        self.v_lin = self.v_lin + (abs(self.pos.m_x - x))
+        self.pos.m_y = self.pos.m_y + self.v_col + (abs(self.pos.m_y - y))
+        self.v_col = self.v_col + (abs(self.pos.m_y - y))
 
     def neighbours(self):
         lista = []
@@ -45,6 +45,6 @@ class Corredor:
         for a_lin in acel:
             for a_col in acel:
                 pos = Pos(self.pos.m_x + self.v_lin + a_lin, self.pos.m_y + self.v_col + a_col)
-                lista.append([pos, a_lin, a_col])
+                lista.append(pos)
 
         return lista
