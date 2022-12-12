@@ -601,58 +601,94 @@ class Graph:
             return None
 
     ################################################################################
-    # Pesquisa A* (estrela) TODO
+    # Pesquisa A* (estrela) 
     ################################################################################
 
+    def calcula_est(self, estima):
+        l = list(estima.keys())
+        min_estima = estima[l[0]]
+        node = l[0]
+        for k, v in estima.items():
+            if v < min_estima:
+                min_estima = v
+                node = k
+        return node
+
     def pesquisa_estrela(self, start, end):
-        open_list = set([start])
+        # open_list is a list of nodes which have been visited, but who's neighbors
+        # haven't all been inspected, starts off with the start node
+        # closed_list is a list of nodes which have been visited
+        # and who's neighbors have been inspected
+        open_list = {start}
         closed_list = set([])
 
+        # g contains current distances from start_node to all other nodes
+        # the default value (if it's not found in the map) is +infinity
         g = {}  ##  g é apra substiruir pelo peso  ???
+
         g[start] = 0
+
         # parents contains an adjacency map of all nodes
         parents = {}
         parents[start] = start
+        best_pos = None
         while len(open_list) > 0:
-            n = None
             # find a node with the lowest value of f() - evaluation function
-            for v in open_list:
-                if n == None or g[v] + self.m_h[v] < g[n] + self.m_h[n]:  # heuristica ver.....
-                    n = v;
-            if n == None:
+            calc_heurist = {}
+            flag = 0
+            for fpos in open_list:
+                if best_pos == None:
+                    best_pos = fpos
+                else:
+                    flag = 1
+                    calc_heurist[fpos] = g[fpos] + self.m_h(fpos)
+            if flag == 1:
+                min_estima = self.calcula_est(calc_heurist)
+                best_pos = min_estima
+            if best_pos == None:
                 print('Path does not exist!')
                 return None
 
-            if n == end:
+            # if the current node is the stop_node
+            # then we begin reconstructin the path from it to the start_node
+            if best_pos == end:
                 reconst_path = []
-                while parents[n] != n:
-                    reconst_path.append(n)
-                    n = parents[n]
+
+                while parents[best_pos] != best_pos:
+                    reconst_path.append(best_pos)
+                    best_pos = parents[best_pos]
+
                 reconst_path.append(start)
+
                 reconst_path.reverse()
-                print('Path found: {}'.format(reconst_path))
-                return (reconst_path, self.calcula_custo(reconst_path))
-            # for all neighbors of the current node do
-            for (m, weight) in self.getNeighbours(n):  # definir função getneighbours  tem de ter um par nodo peso
-                # if the current node isn't in both open_list and closed_list
-                # add it to open_list and note n as it's parent
-                if m not in open_list and m not in closed_list:
-                    open_list.add(m)
-                    parents[m] = n
-                    g[m] = g[n] + weight
 
+                #print('Path found: {}'.format(reconst_path))
+                return (reconst_path, self.calc_custo(reconst_path))
 
+           
+
+            for adj in self.neighbors(best_pos.m_x, best_pos.m_y):
+                if adj.m_type != "X" and adj not in open_list and adj not in closed_list:
+                    open_list.add(adj)
+                    parents[adj] = best_pos
+                    g[adj] = g[best_pos] + weight
+
+                # otherwise, check if it's quicker to first visit n, then m
+                # and if it is, update parent data and g data
+                # and if the node was in the closed_list, move it to open_list
                 else:
-                    if g[m] > g[n] + weight:
-                        g[m] = g[n] + weight
-                        parents[m] = n
+                    if g[adj] > g[best_pos] + weight:
+                        g[adj] = g[best_pos] + weight
+                        parents[adj] = best_pos
 
-                        if m in closed_list:
-                            closed_list.remove(m)
-                            open_list.add(m)
+                        if adj in closed_list:
+                            closed_list.remove(adj)
+                            open_list.add(adj)
 
-            open_list.remove(n)
-            closed_list.add(n)
+            # remove n from the open_list, and add it to closed_list
+            # because all of his neighbors were inspected
+            open_list.remove(best_pos)
+            closed_list.add(best_pos)
 
         print('Path does not exist!')
         return None
