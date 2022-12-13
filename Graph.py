@@ -474,7 +474,72 @@ class Graph:
     # Pesquisa gulosa
     ################################################################################
 
-    def greedy(self, carros, end): # TODO CHECK FOR X IN PATH
+    def line(self, pos1, pos2):
+        res = []
+        if pos1.m_y == pos2.m_y:
+            for x in range(pos1.m_x, pos2.m_x):
+                res.append(self.get_pos(x, pos1.m_y).m_type)
+        elif pos1.m_x == pos2.m_x:
+            for y in range(pos1.m_y, pos2.m_y):
+                res.append(copy.deepcopy(self.get_pos(pos1.m_x, y).m_type))
+
+        return res
+
+    def bresenham(self, start, end):
+        # step 1 get end-points of line
+        (x0, y0) = start.get_xy()
+        (x1, y1) = end.get_xy()
+
+        # step 2 calculate difference
+        dx = abs(x1 - x0)
+        dy = abs(y1 - y0)
+        m = dy / dx
+
+        # step 3 perform test to check if pk < 0
+        flag = True
+
+        line_type = set()
+        line_type.add(self.get_pos(x0, y0).m_type)
+
+        step = 1
+        if x0 > x1 or y0 > y1:
+            step = -1
+
+        mm = False
+        if m < 1:
+            x0, x1, y0, y1 = y0, y1, x0, x1
+            dx = abs(x1 - x0)
+            dy = abs(y1 - y0)
+            mm = True
+
+        p0 = 2 * dx - dy
+        x = x0
+        y = y0
+
+        for i in range(abs(y1 - y0)):
+            if flag:
+                x_previous = x0
+                p_previous = p0
+                p = p0
+                flag = False
+            else:
+                x_previous = x
+                p_previous = p
+
+            if p >= 0:
+                x = x + step
+
+            p = p_previous + 2 * dx - 2 * dy * (abs(x - x_previous))
+            y = y + 1
+
+            if mm:
+                line_type.add(self.get_pos(y, x).m_type)
+            else:
+                line_type.add(self.get_pos(x, y).m_type)
+
+        return line_type
+
+    def greedy(self, carros, end):
         cfinal = []
         accel = dict()
         open_list = dict()
@@ -523,11 +588,13 @@ class Graph:
 
                 for (x, y, ac_x, ac_y) in c.neighbours(min(self.m_h[best_pos])):
                     pos = self.get_pos(x, y)
-                    if pos is not None and pos.m_type != "X" and pos not in open_list.get(c.nome) \
-                            and pos not in closed_list.get(c.nome):
-                        open_list[c.nome].add(pos)
-                        accel[c.nome][pos] = (ac_x, ac_y)
-                        parents[c.nome][pos] = best_pos
+                    if pos is not None:
+                        types = self.line(pos, c.pos)  # Remove to not stop paths that collide in the x- or y-axis
+                        if pos.m_type != "X" and "X" not in types and \
+                                pos not in open_list.get(c.nome) and pos not in closed_list.get(c.nome):
+                            open_list[c.nome].add(pos)
+                            accel[c.nome][pos] = (ac_x, ac_y)
+                            parents[c.nome][pos] = best_pos
 
                 open_list[c.nome].remove(best_pos)
                 closed_list[c.nome].add(best_pos)
