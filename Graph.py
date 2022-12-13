@@ -111,6 +111,9 @@ class Graph:
 
         return cost
 
+    def inGrid(self, pos):
+        return pos.m_x < len(self.m_map[0]) and pos.m_y < len(self.m_map)
+
     def make_graph(self):
         for posLine in self.m_map:
             for pos in posLine:
@@ -234,29 +237,6 @@ class Graph:
                 res = self.procura_DFS(adjacente, end, path, visited)
                 if res is not None:
                     return res
-
-        path.pop()
-        return None
-
-    # TODO It keeps increasing its speed and so never manages to find the end
-    def procura_DFS_accel(self, carro, end, path=[], visited=set()):
-        path.append(carro.pos)
-        visited.add(carro.pos)
-
-        if carro.pos in end:
-            # calcular o custo do caminho funçao calcula custo.
-            cost = self.calc_custo(path)
-            return path, cost
-
-        for adjacente in self.ord_by_forward(path[0], carro.pos, carro.neighbours()):
-            pos = self.get_pos(adjacente.m_x, adjacente.m_y)
-            if pos is not None:
-                if pos not in visited and pos.m_type != "X":
-                    carro.acelera(pos.m_x, pos.m_y)
-
-                    res = self.procura_DFS_accel(carro, end, path, visited)
-                    if res is not None:
-                        return res
 
         path.pop()
         return None
@@ -494,51 +474,9 @@ class Graph:
     # Pesquisa gulosa
     ################################################################################
 
-    def greedy(self, start, end):
-        open_list = set()
-        open_list.add(start)
-        closed_list = set()
-
-        parents = dict()
-        parents[start] = start
-
-        while len(open_list) > 0:
-            best_pos = None
-
-            # encontraf nodo com a menor heuristica
-            for fpos in open_list:
-                if best_pos is None or min(self.m_h[fpos]) < min(self.m_h[best_pos]):
-                    best_pos = fpos
-
-            if best_pos is None:
-                return None
-
-            if best_pos in end:
-                path = []
-
-                while parents[best_pos] != best_pos:
-                    path.append(best_pos)
-                    best_pos = parents[best_pos]
-
-                path.append(start)
-
-                path.reverse()
-
-                return path
-
-            # para todos os vizinhos  do nodo corrente
-            for adj in self.neighbors(best_pos.m_x, best_pos.m_y):
-                if adj.m_type != "X" and adj not in open_list and adj not in closed_list:
-                    open_list.add(adj)
-                    parents[adj] = best_pos
-
-            open_list.remove(best_pos)
-            closed_list.add(best_pos)
-
-        return None
-
-    def greedy_multi(self, carros, end):
+    def greedy(self, carros, end): # TODO CHECK FOR X IN PATH
         cfinal = []
+        accel = dict()
         open_list = dict()
         closed_list = dict()
         parents = dict()
@@ -546,6 +484,8 @@ class Graph:
         for c in carros:
             open_list[c.nome] = set()
             open_list[c.nome].add(c.pos)
+            accel[c.nome] = dict()
+            accel[c.nome][c.pos] = (0, 0)
             closed_list[c.nome] = set()
             parents[c.nome] = dict()
             parents[c.nome][c.pos] = None
@@ -557,27 +497,37 @@ class Graph:
 
             for c in carros:
                 best_pos = None
+                a_x = a_y = 0
 
                 for fpos in open_list[c.nome]:
-                    if best_pos is None or min(self.m_h[fpos]) < min(self.m_h[best_pos]):
+                    if (best_pos is None or min(self.m_h[fpos]) < min(self.m_h[best_pos])) and fpos not in car_pos[1:]:
+                        ac = accel[c.nome][fpos]
                         best_pos = fpos
+                        a_x = ac[0]
+                        a_y = ac[1]
 
                 if best_pos is None:
                     carros.remove(c)
 
+                c.acelera(a_x, a_y)
                 c.pos = best_pos
 
                 if best_pos in end:
+                    c.pos = best_pos
                     cfinal.append(copy.deepcopy(c))
                     carros.remove(c)
 
-                car_pos.pop(0)
-                car_pos.append(best_pos)
+                if self.inGrid(best_pos):
+                    car_pos.pop(0)
+                    car_pos.append(best_pos)
 
-                for adj in self.neighbors(best_pos.m_x, best_pos.m_y):
-                    if adj.m_type != "X" and adj not in open_list.get(c.nome) and adj not in closed_list.get(c.nome):
-                        open_list[c.nome].add(adj)
-                        parents[c.nome][adj] = best_pos
+                for (x, y, ac_x, ac_y) in c.neighbours(min(self.m_h[best_pos])):
+                    pos = self.get_pos(x, y)
+                    if pos is not None and pos.m_type != "X" and pos not in open_list.get(c.nome) \
+                            and pos not in closed_list.get(c.nome):
+                        open_list[c.nome].add(pos)
+                        accel[c.nome][pos] = (ac_x, ac_y)
+                        parents[c.nome][pos] = best_pos
 
                 open_list[c.nome].remove(best_pos)
                 closed_list[c.nome].add(best_pos)
@@ -614,7 +564,7 @@ class Graph:
                 node = k
         return node
 
-    def pesquisa_estrela(self, start, end):
+    """def pesquisa_estrela(self, start, end):
         # open_list is a list of nodes which have been visited, but who's neighbors
         # haven't all been inspected, starts off with the start node
         # closed_list is a list of nodes which have been visited
@@ -691,4 +641,4 @@ class Graph:
             closed_list.add(best_pos)
 
         print('Path does not exist!')
-        return None
+        return None"""

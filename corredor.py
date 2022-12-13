@@ -3,16 +3,11 @@ from Pos import Pos
 
 class Corredor:
 
-    def __init__(self, nome, pos, v_col, v_lin):
-        # p_lin --> posição na linha
-        # p_col --> posição na coluna
-        # v_lin --> velocidade na linha
-        # v_col --> velocidade na coluna
-
+    def __init__(self, nome, pos, v_x, v_y):
         self.nome = str(nome)
         self.pos = pos
-        self.v_lin = v_lin
-        self.v_col = v_col
+        self.v_x = v_x
+        self.v_y = v_y
 
     def __str__(self):
         return "Corredor " + self.nome
@@ -32,19 +27,22 @@ class Corredor:
     def __hash__(self):
         return hash(self.nome)
 
-    def acelera(self, x, y):
-        self.pos.m_x = self.pos.m_x + self.v_lin + (abs(self.pos.m_x - x))
-        self.v_lin = self.v_lin + (abs(self.pos.m_x - x))
-        self.pos.m_y = self.pos.m_y + self.v_col + (abs(self.pos.m_y - y))
-        self.v_col = self.v_col + (abs(self.pos.m_y - y))
+    def calc_vel(self, a_x, a_y):
+        return self.v_x + a_x, self.v_y + a_y
 
-    def neighbours(self):
+    def acelera(self, a_x, a_y):
+        self.v_x = self.v_x + a_x
+        self.v_y = self.v_y + a_y
+
+    def neighbours(self, h):
         lista = []
         acel = [-1, 0, 1]
 
-        for a_lin in acel:
-            for a_col in acel:
-                pos = Pos(self.pos.m_x + self.v_lin + a_lin, self.pos.m_y + self.v_col + a_col)
-                lista.append(pos)
+        for a_x in acel:
+            for a_y in acel:
+                p_vol = self.calc_vel(a_x, a_y)
+                if abs(p_vol[0]) <= h and abs(p_vol[1]) <= h:
+                    pos = (self.pos.m_x + self.v_x + a_x, self.pos.m_y + self.v_y + a_y, a_x, a_y)
+                    lista.append(pos)
 
         return lista
