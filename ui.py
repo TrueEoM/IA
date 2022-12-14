@@ -21,8 +21,7 @@ def ui_jogo():
         print("4-Corrida com BFS")
         print("5-Corrida com Iterativa")
         print("6-Corrida com Pesquisa Gulosa")
-        # print("6-Corrida com Pesquisa A*")
-        # print("7-Corrida com Minimax")
+        print("7-Corrida com Pesquisa A*")
         print("0-Saír")
 
         saida = int(input("introduza a sua opcao-> "))
@@ -154,6 +153,27 @@ def ui_jogo():
                 g.build_heu()
 
                 res = g.greedy(g.m_carros, g.m_ending)
+
+                for c in res:
+                    print(c + ": ")
+                    # TODO FIX THIS cost = g.calc_custo(res.get(c)) TO WORK WITH ACCEL
+                    g.print_result_multi((res.get(c), len(res.get(c))), True)
+
+                l = input("prima enter para continuar")
+            else:
+                print("Ficheiro não existe!!")
+                l = input("prima enter para continuar")
+        elif saida == 7:
+            # Efetuar corrida com A*
+
+            g = Graph()
+            filename = input("insira ficheiro com circuito ---> ")
+            if (exists(filename)):
+                g.parse(filename)
+                g.make_graph()
+                g.build_heu()
+
+                res = g.procura_aStar(g.m_carros, g.m_ending)
 
                 for c in res:
                     print(c + ": ")

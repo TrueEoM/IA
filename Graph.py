@@ -489,55 +489,71 @@ class Graph:
         # step 1 get end-points of line
         (x0, y0) = start.get_xy()
         (x1, y1) = end.get_xy()
+        line_type = set()
 
         # step 2 calculate difference
         dx = abs(x1 - x0)
         dy = abs(y1 - y0)
-        m = dy / dx
+        if dx == 0 or dy == 0:
+            if y0 == y1:
+                for x in range(dx):
+                    if x0 < x1:
+                        line_type.add(self.get_pos(x0 + x, y0).m_type)
+                    else:
+                        line_type.add(self.get_pos(x1 + x, y0).m_type)
+            elif x0 == x1:
+                for y in range(dy):
+                    if y0 < y1:
+                        line_type.add(copy.deepcopy(self.get_pos(x0, y + y0).m_type))
+                    else:
+                        line_type.add(copy.deepcopy(self.get_pos(x0, y + y1).m_type))
 
-        # step 3 perform test to check if pk < 0
-        flag = True
+            return line_type
+        else:
+            m = dy / dx
 
-        line_type = set()
-        line_type.add(self.get_pos(x0, y0).m_type)
+            # step 3 perform test to check if pk < 0
+            flag = True
 
-        step = 1
-        if x0 > x1 or y0 > y1:
-            step = -1
+            line_type.add(self.get_pos(x0, y0).m_type)
 
-        mm = False
-        if m < 1:
-            x0, x1, y0, y1 = y0, y1, x0, x1
-            dx = abs(x1 - x0)
-            dy = abs(y1 - y0)
-            mm = True
+            step = 1
+            if x0 > x1 or y0 > y1:
+                step = -1
 
-        p0 = 2 * dx - dy
-        x = x0
-        y = y0
+            mm = False
+            if m < 1:
+                x0, x1, y0, y1 = y0, y1, x0, x1
+                dx = abs(x1 - x0)
+                dy = abs(y1 - y0)
+                mm = True
 
-        for i in range(abs(y1 - y0)):
-            if flag:
-                x_previous = x0
-                p_previous = p0
-                p = p0
-                flag = False
-            else:
-                x_previous = x
-                p_previous = p
+            p0 = 2 * dx - dy
+            x = x0
+            y = y0
 
-            if p >= 0:
-                x = x + step
+            for i in range(abs(y1 - y0)):
+                if flag:
+                    x_previous = x0
+                    p_previous = p0
+                    p = p0
+                    flag = False
+                else:
+                    x_previous = x
+                    p_previous = p
 
-            p = p_previous + 2 * dx - 2 * dy * (abs(x - x_previous))
-            y = y + 1
+                if p >= 0:
+                    x = x + step
 
-            if mm:
-                line_type.add(self.get_pos(y, x).m_type)
-            else:
-                line_type.add(self.get_pos(x, y).m_type)
+                p = p_previous + 2 * dx - 2 * dy * (abs(x - x_previous))
+                y = y + 1
 
-        return line_type
+                if mm:
+                    line_type.add(self.get_pos(y, x).m_type)
+                else:
+                    line_type.add(self.get_pos(x, y).m_type)
+
+            return line_type
 
     def greedy(self, carros, end):
         cfinal = []
@@ -590,6 +606,7 @@ class Graph:
                     pos = self.get_pos(x, y)
                     if pos is not None:
                         types = self.line(pos, c.pos)  # Remove to not stop paths that collide in the x- or y-axis
+                        # types = self.bresenham(c.pos, pos)
                         if pos.m_type != "X" and "X" not in types and \
                                 pos not in open_list.get(c.nome) and pos not in closed_list.get(c.nome):
                             open_list[c.nome].add(pos)
@@ -618,94 +635,96 @@ class Graph:
             return None
 
     ################################################################################
-    # Pesquisa A* (estrela) 
+    # Pesquisa A* (estrela)
     ################################################################################
 
-    def calcula_est(self, estima):
-        l = list(estima.keys())
-        min_estima = estima[l[0]]
-        node = l[0]
-        for k, v in estima.items():
-            if v < min_estima:
-                min_estima = v
-                node = k
-        return node
+    def procura_aStar(self, carros, end):
+        open_list = dict()
+        closed_list = dict()
+        parents = dict()
+        accel = dict()
+        g = dict()
+        cfinal = []
 
-    """def pesquisa_estrela(self, start, end):
-        # open_list is a list of nodes which have been visited, but who's neighbors
-        # haven't all been inspected, starts off with the start node
-        # closed_list is a list of nodes which have been visited
-        # and who's neighbors have been inspected
-        open_list = {start}
-        closed_list = set([])
+        for c in carros:
+            open_list[c.nome] = set()
+            open_list[c.nome].add(c.pos)
+            closed_list[c.nome] = set()
+            accel[c.nome] = dict()
+            accel[c.nome][c.pos] = (0, 0)
+            parents[c.nome] = dict()
+            parents[c.nome][c.pos] = None
+            g[c.nome] = dict()
+            g[c.nome][c.pos] = 0
 
-        # g contains current distances from start_node to all other nodes
-        # the default value (if it's not found in the map) is +infinity
-        g = {}  ##  g é apra substiruir pelo peso  ???
+        while len(open_list) > 0 and len(carros) > 0:
+            car_pos = []
+            for c in carros:
+                car_pos.append(c.pos)
 
-        g[start] = 0
+            for c in carros:
+                best_pos = None
+                a_x = a_y = 0
 
-        # parents contains an adjacency map of all nodes
-        parents = {}
-        parents[start] = start
-        best_pos = None
-        while len(open_list) > 0:
-            # find a node with the lowest value of f() - evaluation function
-            calc_heurist = {}
-            flag = 0
-            for fpos in open_list:
-                if best_pos == None:
-                    best_pos = fpos
-                else:
-                    flag = 1
-                    calc_heurist[fpos] = g[fpos] + self.m_h(fpos)
-            if flag == 1:
-                min_estima = self.calcula_est(calc_heurist)
-                best_pos = min_estima
-            if best_pos == None:
-                print('Path does not exist!')
-                return None
+                for pos in open_list[c.nome]:
+                    if best_pos is None or (g[c.nome].get(pos) + min(self.m_h[pos]) < g[c.nome].get(best_pos)
+                                            + min(self.m_h[best_pos]) and pos not in car_pos[1:]):
+                        best_pos = pos
+                        ac = accel[c.nome][pos]
+                        a_x = ac[0]
+                        a_y = ac[1]
 
-            # if the current node is the stop_node
-            # then we begin reconstructin the path from it to the start_node
-            if best_pos == end:
-                reconst_path = []
+                if best_pos is None:
+                    carros.remove(c)
 
-                while parents[best_pos] != best_pos:
-                    reconst_path.append(best_pos)
-                    best_pos = parents[best_pos]
+                c.acelera(a_x, a_y)
+                c.pos = best_pos
 
-                reconst_path.append(start)
+                if best_pos in end:
+                    cfinal.append(copy.deepcopy(c))
+                    carros.remove(c)
 
-                reconst_path.reverse()
+                if self.inGrid(best_pos):
+                    car_pos.pop(0)
+                    car_pos.append(best_pos)
 
-                #print('Path found: {}'.format(reconst_path))
-                return (reconst_path, self.calc_custo(reconst_path))
+                for (x, y, ac_x, ac_y) in c.neighbours(min(self.m_h[best_pos])):
+                    pos = self.get_pos(x, y)
+                    if pos is not None:
+                        types = self.line(pos, c.pos)  # Remove to not stop paths that collide in the x- or y-axis
+                        # types = self.bresenham(c.pos, pos)
+                        if pos.m_type != "X" and "X" not in types:
+                            if pos not in open_list[c.nome] and pos not in closed_list[c.nome]:
+                                open_list[c.nome].add(pos)
+                                accel[c.nome][pos] = (ac_x, ac_y)
+                                parents[c.nome][pos] = best_pos
+                                g[c.nome][pos] = g[c.nome][best_pos] + 1
+                            else:
+                                if g[c.nome][pos] > g[c.nome][best_pos] + 1:
+                                    g[c.nome][pos] = g[c.nome][best_pos] + 1
+                                    parents[c.nome][pos] = best_pos
 
-           
+                                    if pos in closed_list[c.nome]:
+                                        closed_list[c.nome].remove(pos)
+                                        open_list[c.nome].add(pos)
 
-            for adj in self.neighbors(best_pos.m_x, best_pos.m_y):
-                if adj.m_type != "X" and adj not in open_list and adj not in closed_list:
-                    open_list.add(adj)
-                    parents[adj] = best_pos
-                    g[adj] = g[best_pos] + weight
+                open_list[c.nome].remove(best_pos)
+                closed_list[c.nome].add(best_pos)
 
-                # otherwise, check if it's quicker to first visit n, then m
-                # and if it is, update parent data and g data
-                # and if the node was in the closed_list, move it to open_list
-                else:
-                    if g[adj] > g[best_pos] + weight:
-                        g[adj] = g[best_pos] + weight
-                        parents[adj] = best_pos
+        if len(carros) == 0:
+            path = dict()
+            for c in cfinal:
+                if c.pos in end:
+                    endpos = c.pos
 
-                        if adj in closed_list:
-                            closed_list.remove(adj)
-                            open_list.add(adj)
+                    path[c.nome] = []
+                    path[c.nome].append(endpos)
 
-            # remove n from the open_list, and add it to closed_list
-            # because all of his neighbors were inspected
-            open_list.remove(best_pos)
-            closed_list.add(best_pos)
+                    while parents[c.nome][endpos] is not None:
+                        path[c.nome].append(parents[c.nome][endpos])
+                        endpos = parents[c.nome][endpos]
+                    path[c.nome].reverse()
 
-        print('Path does not exist!')
-        return None"""
+            return path
+        else:
+            print("All cars didn't find a path")
