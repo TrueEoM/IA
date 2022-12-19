@@ -4,11 +4,8 @@ from corredor import Corredor as car
 
 
 # UI do VectorRace
-# juntar ao main
 
 def ui_jogo():
-    # deve ser chamada na função main()
-
     # construção da UI
     saida = -1
     while saida != 0:
@@ -75,7 +72,6 @@ def ui_jogo():
                         g.print_result_multi((res.get(c), cost), True)
                 else:
                     res = g.procura_DFS(g.m_start[0], g.m_ending, path=[], visited=set())
-                    # res = g.procura_DFS_accel(g.m_carros[0], g.m_ending, path=[], visited=set())
                     g.print_result(res)
 
                 l = input("prima enter para continuar")
@@ -156,7 +152,6 @@ def ui_jogo():
 
                 for c in res:
                     print(c + ": ")
-                    # TODO FIX THIS cost = g.calc_custo(res.get(c)) TO WORK WITH ACCEL
                     g.print_result_multi((res.get(c), len(res.get(c))), True)
 
                 l = input("prima enter para continuar")
@@ -177,7 +172,6 @@ def ui_jogo():
 
                 for c in res:
                     print(c + ": ")
-                    # TODO FIX THIS cost = g.calc_custo(res.get(c)) TO WORK WITH ACCEL
                     g.print_result_multi((res.get(c), len(res.get(c))), True)
 
                 l = input("prima enter para continuar")

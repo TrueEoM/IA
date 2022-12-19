@@ -368,15 +368,12 @@ class Graph:
     ################################################################################
 
     def procura_BFS(self, start, end):
-        # Set of visited nodes to prevent loops
         visited = set()
         queue = Queue()
 
-        # Add the start_node to the queue and visited list
         queue.put(start)
         visited.add(start)
 
-        # start_node has not parents
         parent = dict()
         parent[start] = None
 
@@ -471,7 +468,7 @@ class Graph:
         return path
 
     ################################################################################
-    # Pesquisa gulosa
+    # Pesquisa gulosa [DONE]
     ################################################################################
 
     def line(self, pos1, pos2):
@@ -484,76 +481,6 @@ class Graph:
                 res.append(copy.deepcopy(self.get_pos(pos1.m_x, y).m_type))
 
         return res
-
-    def bresenham(self, start, end):
-        # step 1 get end-points of line
-        (x0, y0) = start.get_xy()
-        (x1, y1) = end.get_xy()
-        line_type = set()
-
-        # step 2 calculate difference
-        dx = abs(x1 - x0)
-        dy = abs(y1 - y0)
-        if dx == 0 or dy == 0:
-            if y0 == y1:
-                for x in range(dx):
-                    if x0 < x1:
-                        line_type.add(self.get_pos(x0 + x, y0).m_type)
-                    else:
-                        line_type.add(self.get_pos(x1 + x, y0).m_type)
-            elif x0 == x1:
-                for y in range(dy):
-                    if y0 < y1:
-                        line_type.add(copy.deepcopy(self.get_pos(x0, y + y0).m_type))
-                    else:
-                        line_type.add(copy.deepcopy(self.get_pos(x0, y + y1).m_type))
-
-            return line_type
-        else:
-            m = dy / dx
-
-            # step 3 perform test to check if pk < 0
-            flag = True
-
-            line_type.add(self.get_pos(x0, y0).m_type)
-
-            step = 1
-            if x0 > x1 or y0 > y1:
-                step = -1
-
-            mm = False
-            if m < 1:
-                x0, x1, y0, y1 = y0, y1, x0, x1
-                dx = abs(x1 - x0)
-                dy = abs(y1 - y0)
-                mm = True
-
-            p0 = 2 * dx - dy
-            x = x0
-            y = y0
-
-            for i in range(abs(y1 - y0)):
-                if flag:
-                    x_previous = x0
-                    p_previous = p0
-                    p = p0
-                    flag = False
-                else:
-                    x_previous = x
-                    p_previous = p
-
-                if p >= 0:
-                    x = x + step
-
-                p = p_previous + 2 * dx - 2 * dy * (abs(x - x_previous))
-                y = y + 1
-
-                if mm:
-                    line_type.add(self.get_pos(y, x).m_type)
-                else:
-                    line_type.add(self.get_pos(x, y).m_type)
-
-            return line_type
 
     def greedy(self, carros, end):
         cfinal = []
@@ -606,7 +533,6 @@ class Graph:
                     pos = self.get_pos(x, y)
                     if pos is not None:
                         types = self.line(pos, c.pos)  # Remove to not stop paths that collide in the x- or y-axis
-                        # types = self.bresenham(c.pos, pos)
                         if pos.m_type != "X" and "X" not in types and \
                                 pos not in open_list.get(c.nome) and pos not in closed_list.get(c.nome):
                             open_list[c.nome].add(pos)
@@ -692,7 +618,6 @@ class Graph:
                     pos = self.get_pos(x, y)
                     if pos is not None:
                         types = self.line(pos, c.pos)  # Remove to not stop paths that collide in the x- or y-axis
-                        # types = self.bresenham(c.pos, pos)
                         if pos.m_type != "X" and "X" not in types:
                             if pos not in open_list[c.nome] and pos not in closed_list[c.nome]:
                                 open_list[c.nome].add(pos)
